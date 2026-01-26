@@ -1,12 +1,21 @@
 {
-    "manifest_version":3,
-    "name":"TaskGuard",
-    "version":1.0,
-    "description":"A Chrome extension that ensures you stay on task.",
-    "permission":[],
-    "action":{
+    "manifest_version": 3,
+    "name": "TaskGuard",
+    "version": "1.0",
+    "description": "A Chrome extension that ensures you stay on task.",
+    "permissions": [],
+    "icons": {
+        "16": "image.png",
+        "48": "image.png",
+        "128": "image.png"
+    },
+    "action": {
         "default_popup": "blocked.html",
-        "default_icon":""
+        "default_title": "TaskGuard",
+        "default_icon": {
+            "16": "image.png",
+            "48": "image.png",
+            "128": "image.png"
+        }
     }
-
 }
