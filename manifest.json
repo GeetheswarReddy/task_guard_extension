@@ -1,0 +1,12 @@
+{
+    "manifest_version":3,
+    "name":"TaskGuard",
+    "version":1.0,
+    "description":"A Chrome extension that ensures you stay on task.",
+    "permission":[],
+    "action":{
+        "default_popup": "blocked.html",
+        "default_icon":""
+    }
+
+}
