@@ -12,6 +12,9 @@
     "action": {
         "default_popup": "blocked.html",
         "default_title": "TaskGuard",
+        "background": {
+            "service_worker": "blocked.js"
+        },
         "default_icon": {
             "16": "image.png",
             "48": "image.png",
