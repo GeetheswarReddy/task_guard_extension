@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TaskGuard - Stay Focused</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0f23;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .container {
+            background: #1a1a2e;
+            border-radius: 16px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #2d2d4a;
+        }
+        .shield {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #7a7a9a;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+            border: 1px solid #2d2d4a;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label {
+            font-size: 12px;
+            color: #7a7a9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 100px;
+            padding-top: 2px;
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+
+        .question {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-allow {
+            background: #00b894;
+            color: white;
+        }
+        .btn-allow:hover { background: #00a381; }
+        .btn-block {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-block:hover { background: #c0392b; }
+
+        .add-allowlist {
+            margin-top: 16px;
+        }
+        .add-allowlist label {
+            font-size: 13px;
+            color: #7a7a9a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .add-allowlist input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: #6c5ce7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="shield">&#128737;</div>
+        <h1>Site Intercepted</h1>
+        <p class="subtitle">TaskGuard detected a site not on your allowlist</p>
+
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label">Your task</span>
+                <span class="info-value" id="display_intent">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Website</span>
+                <span class="info-value" id="display_domain">—</span>
+            </div>
+        </div>
+
+        <p class="question">Is this website relevant to your current task?</p>
+
+        <div class="actions">
+            <button class="btn btn-allow" id="btn_allow">Allow (Relevant)</button>
+            <button class="btn btn-block" id="btn_block">Block (Distracting)</button>
+        </div>
+
+        <div class="add-allowlist">
+            <label>
+                <input type="checkbox" id="add_to_allowlist">
+                Always allow this site during focus sessions
+            </label>
+        </div>
+    </div>
+
+    <script src="intercept.js"></script>
+</body>
+</html>

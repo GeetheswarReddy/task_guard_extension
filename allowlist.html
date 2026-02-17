@@ -1,16 +1,153 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>Allowlist Page</title>
-        <script src="allowlist.js"></script>
-    </head>
-    <body>
-        <h1>Welcome to the Allowlist Page</h1>
-        <p>This is where users can manage their allowlist.</p>
-        <input type="text" id="allowlist_input" placeholder="Enter a website to allow">
-        <button type="submit" id="add_allowlist">Add</button>
-        <ul id="allowlist_display"></ul>    
-        
+<head>
+    <title>TaskGuard - Allowlist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0f23;
+            color: #e0e0e0;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        h1 { font-size: 22px; color: #6c5ce7; }
+        .back-link {
+            color: #6c5ce7;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .back-link:hover { text-decoration: underline; }
 
-    </body>
+        .add-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .add-form input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #2d2d4a;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .add-form input:focus { border-color: #6c5ce7; }
+        .add-form input::placeholder { color: #555580; }
+        .add-form button {
+            padding: 10px 20px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .add-form button:hover { background: #5a4bd1; }
 
+        .hint {
+            font-size: 12px;
+            color: #7a7a9a;
+            margin-bottom: 16px;
+        }
+
+        .allowlist {
+            list-style: none;
+        }
+        .allowlist li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1a1a2e;
+            border: 1px solid #2d2d4a;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .allowlist li .domain { font-weight: 500; color: #e0e0e0; }
+        .allowlist li .remove-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .allowlist li .remove-btn:hover { color: #ff6b6b; }
+
+        .empty-state {
+            text-align: center;
+            color: #555580;
+            padding: 32px;
+            font-size: 14px;
+        }
+
+        .default-sites {
+            margin-top: 20px;
+            padding: 14px;
+            background: #1a1a2e;
+            border: 1px solid #2d2d4a;
+            border-radius: 8px;
+        }
+        .default-sites h3 {
+            font-size: 13px;
+            color: #7a7a9a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .default-sites .chip {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #2d2d4a;
+            color: #9a9abf;
+            border-radius: 16px;
+            font-size: 12px;
+            margin: 3px 4px 3px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .default-sites .chip:hover { background: #6c5ce7; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Allowlist</h1>
+        <a class="back-link" id="back_link">Back to TaskGuard</a>
+    </div>
+
+    <div class="add-form">
+        <input type="text" id="allowlist_input" placeholder="Enter website domain (e.g. stackoverflow.com)">
+        <button id="add_allowlist">Add</button>
+    </div>
+    <p class="hint">Add websites that should never be blocked during focus sessions.</p>
+
+    <ul class="allowlist" id="allowlist_display"></ul>
+    <div class="empty-state" id="empty_state">No websites in your allowlist yet.</div>
+
+    <div class="default-sites">
+        <h3>Quick Add</h3>
+        <span class="chip" data-domain="google.com">google.com</span>
+        <span class="chip" data-domain="stackoverflow.com">stackoverflow.com</span>
+        <span class="chip" data-domain="github.com">github.com</span>
+        <span class="chip" data-domain="docs.google.com">docs.google.com</span>
+        <span class="chip" data-domain="wikipedia.org">wikipedia.org</span>
+        <span class="chip" data-domain="scholar.google.com">scholar.google.com</span>
+    </div>
+
+    <script src="allowlist.js"></script>
+</body>
 </html>
