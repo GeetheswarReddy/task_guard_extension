@@ -16,6 +16,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'startTimer') {
         startBadgeTimer(message.endTime);
+        checkExistingTabs();
     } else if (message.action === 'stopTimer') {
         stopBadgeTimer();
     } else if (message.action === 'logDecision') {
@@ -73,6 +74,44 @@ function checkAndIntercept(tabId, url) {
 
             chrome.tabs.update(tabId, { url: interceptUrl });
         }
+    });
+}
+
+// --- Check Already-Open Tabs ---
+function checkExistingTabs() {
+    chrome.storage.local.get(['timerEndTime', 'intent', 'intentCategory', 'allowlist', 'sessionId', 'tempAllowlist'], (data) => {
+        if (!data.timerEndTime || data.timerEndTime <= Date.now()) return;
+
+        chrome.tabs.query({}, (tabs) => {
+            tabs.forEach(tab => {
+                const url = tab.url;
+                if (!url || url.startsWith('chrome://') || url.startsWith('chrome-extension://') ||
+                    url.startsWith('about:') || url.startsWith('edge://')) return;
+
+                let domain;
+                try {
+                    domain = new URL(url).hostname.replace(/^www\./, '');
+                } catch (e) {
+                    return;
+                }
+
+                const allowlist = data.allowlist || [];
+                const tempAllowlist = data.tempAllowlist || [];
+                const isAllowed = [...allowlist, ...tempAllowlist].some(allowed =>
+                    domain === allowed || domain.endsWith('.' + allowed)
+                );
+
+                if (!isAllowed) {
+                    const interceptUrl = chrome.runtime.getURL('intercept.html') +
+                        `?domain=${encodeURIComponent(domain)}` +
+                        `&url=${encodeURIComponent(url)}` +
+                        `&intent=${encodeURIComponent(data.intent || '')}` +
+                        `&intentCategory=${encodeURIComponent(data.intentCategory || '')}` +
+                        `&sessionId=${encodeURIComponent(data.sessionId || '')}`;
+                    chrome.tabs.update(tab.id, { url: interceptUrl });
+                }
+            });
+        });
     });
 }
 
