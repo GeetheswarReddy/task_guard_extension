@@ -24,13 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function addSite() {
     const input = document.getElementById('allowlist_input');
-    let domain = input.value.trim().toLowerCase();
-    if (!domain) return;
+    const rawInput = input.value.trim().toLowerCase();
+    if (!rawInput) return;
 
-    // Clean up the input - extract domain from URL if needed
-    domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+    // Support comma-separated domains
+    const domains = rawInput.split(',').map(d => {
+        // Clean up each domain - extract domain from URL if needed
+        return d.trim()
+            .replace(/^https?:\/\//, '')
+            .replace(/\/.*$/, '')
+            .replace(/^www\./, '');
+    }).filter(d => d.length > 0);
 
-    addDomainToStorage(domain);
+    // Add all domains
+    domains.forEach(domain => addDomainToStorage(domain));
     input.value = '';
 }
 

@@ -118,6 +118,11 @@ function startFocusSession() {
 }
 
 function endSession() {
+    // Confirm before ending session early
+    if (!confirm('Are you sure you want to end this focus session early?')) {
+        return;
+    }
+
     // Log session end before clearing
     chrome.storage.local.get(['sessionId', 'intent', 'intentCategory', 'sessionStartTime', 'timerMinutes', 'sessionAllowlistSnapshot', 'tempAllowlist'], (data) => {
         if (data.sessionId) {

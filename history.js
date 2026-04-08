@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('btn_export').addEventListener('click', exportData);
+    document.getElementById('btn_export_json').addEventListener('click', exportJSON);
+    document.getElementById('btn_export_csv').addEventListener('click', exportCSV);
     document.getElementById('btn_clear').addEventListener('click', clearData);
 });
 
@@ -145,7 +146,7 @@ function loadSessions() {
     });
 }
 
-function exportData() {
+function exportJSON() {
     chrome.storage.local.get(['decisionLogs', 'sessionLogs', 'userId'], (data) => {
         const exportPayload = {
             userId: data.userId || 'unknown',
@@ -158,6 +159,40 @@ function exportData() {
         const a = document.createElement('a');
         a.href = url;
         a.download = 'taskguard_export.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+}
+
+function exportCSV() {
+    const activeTab = document.querySelector('.tab.active').dataset.tab;
+
+    chrome.storage.local.get(['decisionLogs', 'sessionLogs'], (data) => {
+        let csv = '';
+        let filename = '';
+
+        if (activeTab === 'decisions') {
+            const logs = data.decisionLogs || [];
+            csv = 'Timestamp,Intent,Intent Category,Domain,URL,Decision,Added to Allowlist\n';
+            logs.forEach(log => {
+                csv += `"${log.timestamp || ''}","${(log.intent || '').replace(/"/g, '""')}","${log.intentCategory || ''}","${log.domain || ''}","${(log.url || '').replace(/"/g, '""')}","${log.decision || ''}","${log.addedToAllowlist || false}"\n`;
+            });
+            filename = 'taskguard_decisions.csv';
+        } else {
+            const logs = data.sessionLogs || [];
+            csv = 'Session ID,Intent,Intent Category,Start Time,End Time,Planned Minutes,Actual Minutes,Ended By\n';
+            logs.forEach(log => {
+                const actualMin = Math.round((log.endTime - log.startTime) / 60000);
+                csv += `"${log.sessionId || ''}","${(log.intent || '').replace(/"/g, '""')}","${log.intentCategory || ''}","${new Date(log.startTime).toISOString()}","${new Date(log.endTime).toISOString()}","${log.plannedMinutes || ''}","${actualMin}","${log.endedBy || ''}"\n`;
+            });
+            filename = 'taskguard_sessions.csv';
+        }
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
     });
