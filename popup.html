@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>TaskGuard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -9,6 +10,7 @@
             width: 340px;
             background: #1a1a2e;
             color: #e0e0e0;
+            position: relative;
         }
         .header {
             background: linear-gradient(135deg, #6c5ce7, #4a3fbf);
@@ -32,7 +34,8 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        input[type="text"] {
+        input[type="text"],
+        input[type="number"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #2d2d4a;
@@ -43,8 +46,13 @@
             color: #e0e0e0;
             transition: border-color 0.2s;
         }
-        input[type="text"]:focus { border-color: #6c5ce7; }
-        input[type="text"]::placeholder { color: #555580; }
+        input[type="text"]:focus,
+        input[type="number"]:focus { border-color: #6c5ce7; }
+        input[type="text"]::placeholder,
+        input[type="number"]::placeholder { color: #555580; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
         select {
             width: 100%;
             padding: 10px 12px;
@@ -62,7 +70,35 @@
         .timer-buttons {
             display: flex;
             gap: 8px;
+            margin-bottom: 8px;
         }
+        .custom-duration {
+            position: relative;
+            margin-top: 8px;
+        }
+        .custom-duration input {
+            padding-right: 64px;
+        }
+        .custom-duration .unit-label {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #555580;
+            pointer-events: none;
+        }
+        .details-toggle {
+            display: inline-block;
+            font-size: 11px;
+            color: #6c5ce7;
+            cursor: pointer;
+            padding: 2px 0 8px;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .details-toggle:hover { text-decoration: underline; }
         .timer-btn {
             flex: 1;
             padding: 10px 0;
@@ -173,6 +209,108 @@
             cursor: pointer;
         }
         .footer a:hover { text-decoration: underline; }
+
+        /* End session confirmation overlay */
+        .end-confirm-overlay {
+            display: none;
+            position: absolute;
+            bottom: 45px; /* above footer */
+            left: 0; right: 0;
+            background: #1a1a2e;
+            border-top: 1px solid #2d2d4a;
+            padding: 12px 16px;
+            z-index: 10;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.4);
+        }
+        .end-confirm-overlay p {
+            font-size: 13px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+        .end-confirm-overlay .row { display: flex; gap: 8px; }
+
+        /* Inline field error */
+        .field-error {
+            display: none;
+            font-size: 11px;
+            color: #e74c3c;
+            margin-top: 5px;
+        }
+
+        /* Session summary view */
+        #summary_view { display: none; padding: 16px; }
+        .summary-header {
+            text-align: center;
+            padding: 8px 0 16px;
+        }
+        .summary-icon { font-size: 40px; margin-bottom: 8px; }
+        .summary-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #e0e0e0;
+        }
+        .summary-subtitle {
+            font-size: 12px;
+            color: #7a7a9a;
+            margin-top: 3px;
+        }
+        .summary-task {
+            background: #16213e;
+            border: 1px solid #2d2d4a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #9a9abf;
+            margin-bottom: 14px;
+        }
+        .summary-task span {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-top: 2px;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-box {
+            background: #16213e;
+            border: 1px solid #2d2d4a;
+            border-radius: 8px;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .stat-box .val {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .stat-box .lbl {
+            font-size: 10px;
+            color: #7a7a9a;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-top: 2px;
+        }
+        .completion-bar-bg {
+            height: 6px;
+            background: #2d2d4a;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .completion-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+        .completion-label {
+            font-size: 11px;
+            color: #7a7a9a;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -204,8 +342,11 @@
             </select>
         </div>
         <div class="section" style="padding-top: 0;">
-            <label>Task details (optional)</label>
-            <input type="text" id="task_description" placeholder="e.g. Study chapters 5-7">
+            <button class="details-toggle" id="details_toggle">▼ Add details</button>
+            <div id="details_section" style="display:none;">
+                <label>Task details (optional)</label>
+                <input type="text" id="task_description" placeholder="e.g. Study chapters 5-7">
+            </div>
         </div>
         <div class="section" style="padding-top: 0;">
             <label>Focus duration</label>
@@ -215,6 +356,11 @@
                 <button class="timer-btn" data-minutes="45">45m</button>
                 <button class="timer-btn" data-minutes="60">60m</button>
             </div>
+            <div class="custom-duration">
+                <input type="number" id="custom_minutes" min="1" max="480" placeholder="Or enter custom…">
+                <span class="unit-label">min</span>
+            </div>
+            <div class="field-error" id="duration_error">Please select a focus duration.</div>
         </div>
         <div class="section" style="padding-top: 0;">
             <button class="btn-primary" id="start_session">Start Focus Session</button>
@@ -233,6 +379,51 @@
         <div class="session-actions">
             <button class="btn-secondary" id="btn_allowlist">Manage Allowlist</button>
             <button class="btn-danger" id="end_session">End Session</button>
+        </div>
+    </div>
+
+    <!-- Session Summary View -->
+    <div id="summary_view">
+        <div class="summary-header">
+            <div class="summary-icon" id="summary_icon">&#x2705;</div>
+            <div class="summary-title" id="summary_title">Session Complete!</div>
+            <div class="summary-subtitle" id="summary_subtitle">Great work. Here's how it went.</div>
+        </div>
+
+        <div class="summary-task">
+            Task
+            <span id="summary_intent">—</span>
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-box">
+                <div class="val" id="summary_focused" style="color:#6c5ce7">—</div>
+                <div class="lbl">min focused</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" id="summary_blocked" style="color:#e74c3c">—</div>
+                <div class="lbl">blocked</div>
+            </div>
+            <div class="stat-box">
+                <div class="val" id="summary_allowed" style="color:#00b894">—</div>
+                <div class="lbl">allowed</div>
+            </div>
+        </div>
+
+        <div class="completion-bar-bg">
+            <div class="completion-bar-fill" id="summary_bar" style="width:0%"></div>
+        </div>
+        <div class="completion-label" id="summary_completion_label">—</div>
+
+        <button class="btn-primary" id="btn_new_session">Start New Session</button>
+    </div>
+
+    <!-- End Session Confirmation Overlay -->
+    <div class="end-confirm-overlay" id="end_confirm_overlay">
+        <p>End this focus session early?</p>
+        <div class="row">
+            <button class="btn-danger" id="end_confirm_yes" style="flex:1; padding:9px; font-size:13px; font-weight:600; border:none; border-radius:8px; cursor:pointer;">Yes, End</button>
+            <button class="btn-secondary" id="end_confirm_no" style="flex:1; padding:9px; font-size:13px;">Keep Going</button>
         </div>
     </div>
 

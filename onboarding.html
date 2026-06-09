@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to TaskGuard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f0f23;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: #1a1a2e;
+            border: 1px solid #2d2d4a;
+            border-radius: 16px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 90%;
+            text-align: center;
+        }
+        .logo { font-size: 64px; margin-bottom: 20px; }
+        h1 { font-size: 28px; font-weight: 700; color: #6c5ce7; margin-bottom: 8px; }
+        .tagline { font-size: 15px; color: #7a7a9a; margin-bottom: 36px; }
+
+        .steps { text-align: left; margin-bottom: 36px; display: flex; flex-direction: column; gap: 16px; }
+        .step { display: flex; align-items: flex-start; gap: 14px; }
+        .step-num {
+            width: 28px; height: 28px;
+            background: #6c5ce7;
+            color: white;
+            border-radius: 50%;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .step-text strong { display: block; font-size: 14px; color: #e0e0e0; margin-bottom: 3px; }
+        .step-text span { font-size: 13px; color: #7a7a9a; }
+
+        .warning {
+            background: #2d1a1a;
+            border: 1px solid #5a2a2a;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #e0a0a0;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .warning strong { color: #e74c3c; }
+
+        .btn-start {
+            padding: 14px 40px;
+            background: #00b894;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-start:hover { background: #00a381; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">&#128737;</div>
+        <h1>Welcome to TaskGuard</h1>
+        <p class="tagline">Declare your intent. Stay on track.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <strong>Set your intent</strong>
+                    <span>Click the TaskGuard icon, describe what you're working on, and pick a focus duration.</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <strong>Build your allowlist</strong>
+                    <span>Add sites you need for your work (e.g. docs.python.org, github.com) so they're never interrupted.</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <strong>Stay accountable</strong>
+                    <span>When you visit an unlisted site, TaskGuard will ask: "Is this relevant?" You decide — it learns from your choices.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>Heads up:</strong> Once a session starts, <em>all</em> currently open tabs that aren't on your allowlist will be intercepted. Add sites you need to your allowlist first.
+        </div>
+
+        <button class="btn-start" id="btn_start">Get Started</button>
+    </div>
+    <script src="onboarding.js"></script>
+</body>
+</html>

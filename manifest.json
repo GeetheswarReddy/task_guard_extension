@@ -3,7 +3,7 @@
     "name": "TaskGuard",
     "version": "1.0",
     "description": "An intent-aware Chrome extension for context-sensitive distraction management.",
-    "permissions": ["storage", "alarms", "tabs", "webNavigation"],
+    "permissions": ["storage", "alarms", "tabs", "webNavigation", "downloads"],
     "icons": {
         "16": "image.png",
         "48": "image.png",
@@ -12,6 +12,15 @@
     "background": {
         "service_worker": "background.js"
     },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "intercept.html", "onboarding.html", "allowlist.html", "history.html",
+                "classifier.js", "intercept.js"
+            ],
+            "matches": ["<all_urls>"]
+        }
+    ],
     "action": {
         "default_popup": "popup.html",
         "default_title": "TaskGuard",

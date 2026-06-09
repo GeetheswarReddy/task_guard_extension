@@ -41,13 +41,32 @@ function addSite() {
     input.value = '';
 }
 
+const DOMAIN_RE = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/i;
+
+function showToast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${type}`;
+    el.style.display = 'block';
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => { el.style.display = 'none'; }, 2500);
+}
+
 function addDomainToStorage(domain) {
+    if (!DOMAIN_RE.test(domain)) {
+        showToast(`"${domain}" is not a valid domain`, 'error');
+        return;
+    }
     chrome.storage.local.get(['allowlist'], (data) => {
         const allowlist = data.allowlist || [];
-        if (allowlist.includes(domain)) return; // already exists
+        if (allowlist.includes(domain)) {
+            showToast(`${domain} is already in your allowlist`, 'warn');
+            return;
+        }
         allowlist.push(domain);
         chrome.storage.local.set({ allowlist: allowlist }, () => {
             loadAllowlist();
+            showToast(`${domain} added`, 'success');
         });
     });
 }

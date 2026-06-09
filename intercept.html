@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>TaskGuard - Stay Focused</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -114,40 +115,153 @@
             cursor: pointer;
             accent-color: #6c5ce7;
         }
+
+        /* AI Relevance indicator */
+        .relevance-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #2d2d4a;
+        }
+        .relevance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .relevance-label {
+            font-size: 11px;
+            color: #7a7a9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ai-badge {
+            background: #2d2d4a;
+            color: #6c5ce7;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+        .relevance-score {
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .relevance-bar-bg {
+            height: 5px;
+            background: #2d2d4a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .relevance-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease, background 0.3s;
+        }
+        .relevance-analyzing {
+            font-size: 11px;
+            color: #555580;
+            font-style: italic;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Post-block confirmation */
+        #block_confirm {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .confirm-icon { font-size: 56px; }
+        .confirm-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #00b894;
+        }
+        .confirm-sub {
+            font-size: 14px;
+            color: #7a7a9a;
+            margin-top: -8px;
+        }
+        .btn-back {
+            padding: 12px 28px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-back:hover { background: #5a4bd1; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="shield">&#128737;</div>
-        <h1>Site Intercepted</h1>
-        <p class="subtitle">TaskGuard detected a site not on your allowlist</p>
+        <!-- Intercept decision view -->
+        <div id="intercept_view">
+            <div class="shield">&#128737;</div>
+            <h1>Site Intercepted</h1>
+            <p class="subtitle">TaskGuard detected a site not on your allowlist</p>
 
-        <div class="info-card">
-            <div class="info-row">
-                <span class="info-label">Your task</span>
-                <span class="info-value" id="display_intent">—</span>
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Your task</span>
+                    <span class="info-value" id="display_intent">—</span>
+                </div>
+                <div class="info-row" style="margin-bottom:0;">
+                    <span class="info-label">Website</span>
+                    <span class="info-value" id="display_domain">—</span>
+                </div>
+
+                <!-- AI relevance row — hidden until classifier.js is available -->
+                <div class="relevance-row" id="relevance_row" style="display:none;">
+                    <div class="relevance-header">
+                        <span class="relevance-label">
+                            <span class="ai-badge">AI</span>
+                            Relevance
+                        </span>
+                        <span class="relevance-score" id="relevance_score">
+                            <span class="relevance-analyzing">Analyzing…</span>
+                        </span>
+                    </div>
+                    <div class="relevance-bar-bg">
+                        <div class="relevance-bar-fill" id="relevance_bar" style="width:0%;background:#555580;"></div>
+                    </div>
+                </div>
             </div>
-            <div class="info-row">
-                <span class="info-label">Website</span>
-                <span class="info-value" id="display_domain">—</span>
+
+            <p class="question">Is this website relevant to your current task?</p>
+
+            <div class="actions">
+                <button class="btn btn-allow" id="btn_allow">Allow (Relevant)</button>
+                <button class="btn btn-block" id="btn_block">Block (Distracting)</button>
+            </div>
+
+            <div class="add-allowlist">
+                <label>
+                    <input type="checkbox" id="add_to_allowlist">
+                    Always allow this site during focus sessions
+                </label>
             </div>
         </div>
 
-        <p class="question">Is this website relevant to your current task?</p>
-
-        <div class="actions">
-            <button class="btn btn-allow" id="btn_allow">Allow (Relevant)</button>
-            <button class="btn btn-block" id="btn_block">Block (Distracting)</button>
-        </div>
-
-        <div class="add-allowlist">
-            <label>
-                <input type="checkbox" id="add_to_allowlist">
-                Always allow this site during focus sessions
-            </label>
+        <!-- Post-block confirmation view -->
+        <div id="block_confirm">
+            <div class="confirm-icon">&#x2714;&#xFE0F;</div>
+            <div class="confirm-title">Good call.</div>
+            <div class="confirm-sub">Stay focused on your task.</div>
+            <button class="btn-back" id="btn_go_back">Back to my task</button>
         </div>
     </div>
 
-    <script src="intercept.js"></script>
+    <script type="module" src="intercept.js"></script>
 </body>
 </html>

@@ -11,7 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn_export_json').addEventListener('click', exportJSON);
     document.getElementById('btn_export_csv').addEventListener('click', exportCSV);
-    document.getElementById('btn_clear').addEventListener('click', clearData);
+    document.getElementById('btn_clear').addEventListener('click', () => {
+        document.getElementById('clear_confirm_bar').style.display = 'flex';
+    });
+    document.getElementById('btn_clear_cancel').addEventListener('click', () => {
+        document.getElementById('clear_confirm_bar').style.display = 'none';
+    });
+    document.getElementById('btn_clear_confirm').addEventListener('click', clearData);
 });
 
 function loadTab(tabName) {
@@ -22,9 +28,56 @@ function loadTab(tabName) {
     }
 }
 
+function renderTrendChart(logs) {
+    const chartEl = document.getElementById('trend_chart');
+    const gridEl = document.getElementById('chart_grid');
+
+    if (logs.length === 0) {
+        chartEl.style.display = 'none';
+        return;
+    }
+    chartEl.style.display = 'block';
+
+    // Build per-day counts for last 7 days
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push({
+            label: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            key: d.toDateString(),
+            allow: 0,
+            block: 0
+        });
+    }
+    logs.forEach(log => {
+        const key = new Date(log.timestamp).toDateString();
+        const day = days.find(d => d.key === key);
+        if (!day) return;
+        if (log.decision === 'allow') day.allow++;
+        else if (log.decision === 'block') day.block++;
+    });
+
+    const maxVal = Math.max(...days.map(d => d.allow + d.block), 1);
+
+    gridEl.innerHTML = days.map(d => {
+        const allowH = Math.round((d.allow / maxVal) * 64);
+        const blockH = Math.round((d.block / maxVal) * 64);
+        return `<div class="chart-col">
+            <div class="bar-stack">
+                ${d.block > 0 ? `<div class="bar-block" style="height:${blockH}px" title="${d.block} blocked"></div>` : ''}
+                ${d.allow > 0 ? `<div class="bar-allow" style="height:${allowH}px" title="${d.allow} allowed"></div>` : ''}
+            </div>
+            <div class="bar-label">${d.label}</div>
+        </div>`;
+    }).join('');
+}
+
 function loadDecisions() {
     chrome.storage.local.get(['decisionLogs'], (data) => {
         const logs = (data.decisionLogs || []).slice().reverse();
+
+        renderTrendChart(logs);
 
         const statsEl = document.getElementById('stats');
         const contentEl = document.getElementById('content');
@@ -199,11 +252,10 @@ function exportCSV() {
 }
 
 function clearData() {
-    if (confirm('Are you sure you want to clear all history data? This cannot be undone.')) {
-        chrome.storage.local.remove(['decisionLogs', 'sessionLogs'], () => {
-            loadTab(document.querySelector('.tab.active').dataset.tab);
-        });
-    }
+    chrome.storage.local.remove(['decisionLogs', 'sessionLogs'], () => {
+        document.getElementById('clear_confirm_bar').style.display = 'none';
+        loadTab(document.querySelector('.tab.active').dataset.tab);
+    });
 }
 
 function escapeHtml(str) {

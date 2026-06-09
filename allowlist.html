@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>TaskGuard - Allowlist</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -121,6 +122,24 @@
             transition: all 0.2s;
         }
         .default-sites .chip:hover { background: #6c5ce7; color: white; }
+
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d2d4a;
+            color: #e0e0e0;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 100;
+            white-space: nowrap;
+        }
+        .toast.success { background: #1a3a2a; color: #00b894; border: 1px solid #00b894; }
+        .toast.warn { background: #3a2d1a; color: #fdcb6e; border: 1px solid #fdcb6e; }
+        .toast.error { background: #3a1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
     </style>
 </head>
 <body>
@@ -148,6 +167,7 @@
         <span class="chip" data-domain="scholar.google.com">scholar.google.com</span>
     </div>
 
+    <div class="toast" id="toast"></div>
     <script src="allowlist.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>TaskGuard - History</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -126,6 +127,93 @@
             padding: 48px;
             font-size: 14px;
         }
+
+        /* Trend chart */
+        .chart-section {
+            background: #1a1a2e;
+            border: 1px solid #2d2d4a;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .chart-section h3 {
+            font-size: 13px;
+            color: #7a7a9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+        .chart-grid {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 80px;
+        }
+        .chart-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .bar-stack {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 2px;
+        }
+        .bar-allow {
+            background: #00b894;
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+            transition: height 0.3s;
+        }
+        .bar-block {
+            background: #e74c3c;
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+        }
+        .bar-label {
+            font-size: 10px;
+            color: #555580;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #7a7a9a;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .confirm-bar {
+            display: none;
+            background: #2d1a1a;
+            border: 1px solid #5a2a2a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .confirm-bar p { font-size: 13px; color: #e0a0a0; }
+        .confirm-bar .actions { display: flex; gap: 8px; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -143,6 +231,22 @@
         <button class="tab" data-tab="sessions">Sessions</button>
     </div>
 
+    <div class="confirm-bar" id="clear_confirm_bar">
+        <p>This will permanently delete all history. Are you sure?</p>
+        <div class="actions">
+            <button class="btn btn-danger" id="btn_clear_confirm">Delete</button>
+            <button class="btn" id="btn_clear_cancel" style="background:#2d2d4a; color:#e0e0e0;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="trend_chart" class="chart-section" style="display:none;">
+        <h3>7-Day Trend</h3>
+        <div class="chart-grid" id="chart_grid"></div>
+        <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#00b894"></div>Allowed</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>Blocked</div>
+        </div>
+    </div>
     <div id="stats" class="stats"></div>
     <div id="content"></div>
 
