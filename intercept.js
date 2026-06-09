@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('display_intent').textContent = intent || 'No intent set';
     document.getElementById('display_domain').textContent = domain;
 
-    // TF-IDF relevance scoring — runs synchronously, no model required
+    // Hybrid relevance scoring (topic Jaccard + TF cosine + direct token + known-domain bonus)
+    // Runs synchronously, no model download required.
     runRelevanceClassifier(domain, intent, description, intentCategory);
 
     // Allow — let the user proceed

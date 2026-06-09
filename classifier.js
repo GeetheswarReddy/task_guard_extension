@@ -1,7 +1,16 @@
-// TF-IDF relevance classifier — no model download, runs instantly in the browser.
-// Uses intent title + task description + user-selected category as the query,
-// and the domain name + its known topic signals as the comparison document.
-// Returns a 0–100 relevance score.
+// Hybrid relevance classifier — no model download, runs instantly in the browser.
+// Combines four signals (weights in parentheses):
+//   1. Topic Jaccard overlap (0.50)            — intent and domain mapped to topic
+//                                                 categories via keyword lists.
+//   2. Term-frequency cosine similarity (0.25) — normalized TF vectors over stemmed
+//                                                 tokens (no IDF — not classical TF-IDF).
+//   3. Direct domain-token hit (0.15)          — stemmed prefix/equality match between
+//                                                 domain tokens and intent tokens.
+//   4. Known-domain bonus (0.10)               — domain in the curated lookup table
+//                                                 AND shares at least one topic.
+// Raw 0–1 weighted sum is squashed by a logistic sigmoid for calibration, then
+// scaled to an integer 0–100. Inputs: intent title + task description + popup
+// category. Output: a single 0–100 relevance score.
 
 // ── Stopwords ─────────────────────────────────────────────────────────────────
 const STOPWORDS = new Set([
@@ -372,9 +381,10 @@ export function classifyRelevance(domain, intent, description = '', intentCatego
     const union = new Set([...intentTopics, ...domainTopics]).size;
     const topicScore = union > 0 ? sharedTopics.length / union : 0;
 
-    // ── Score 2: TF-IDF cosine (targeted) ────────────────────────────────────
+    // ── Score 2: TF cosine (targeted) ────────────────────────────────────────
     // Compare intent tokens against keywords from shared topics only.
     // Stemming inside buildTF means surface form differences don't block matches.
+    // No IDF term: keyword frequency across topics isn't modelled here.
     let cosineScore = 0;
     if (sharedTopics.length > 0) {
         const targetKeywords = sharedTopics.flatMap(t => TOPIC_KEYWORDS[t] || []);

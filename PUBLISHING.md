@@ -1,222 +1,98 @@
-# Publishing TaskGuard to the Chrome Web Store
+# Distribution and Installation
+
+> TaskGuard is **deliberately not published to the Chrome Web Store**. It is distributed only as an open-source artifact on GitHub and installed via Chrome's *Load Unpacked* developer flow. This document explains the rationale and the install procedure.
 
 ---
 
-## Prerequisites
+## Why no Chrome Web Store listing?
 
-### 1. Google Developer Account
-- Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-- Sign in with a Google account
-- Pay the **one-time $5 USD registration fee** (required once per developer account, not per extension)
+TaskGuard is framed as a **research artifact**, not a consumer product. Distributing via GitHub rather than the Web Store gives three concrete benefits that matter for the project's research positioning:
 
-### 2. Clean Your Repo First
+1. **No informed-consent gap.** Anyone who installs an unpacked developer build has, by definition, opened the repository, read the source, and chosen to load it. There is no anonymous-end-user population whose data-collection consent we would have to handle.
+2. **No store-policy churn.** The Web Store's policies around `tabs`, `webNavigation`, and behavioural-analytics extensions change frequently and are scrutinised by automated review. An artifact whose value is reproducibility and auditability should not be hostage to that review loop.
+3. **Auditability by default.** GitHub gives reviewers, advisors, and prospective collaborators direct line-numbered access to every signal, weight, and dataset record. A `.zip` artefact pushed to the Web Store does not.
 
-Delete the following files — they are dev artifacts and should not be in your published package:
-
-```
-explanation.txt
-PROJECT_OVERVIEW.md
-TaskGuard.md
-To-do.md
-```
-
-Also make sure `.git/` is excluded (it is automatically excluded when you zip the folder manually — do not zip the `.git/` directory).
+This is an intentional research-hygiene choice. The extension is fully functional and ready to install for any researcher, collaborator, or evaluator who wants to try it.
 
 ---
 
-## Step 1 — Prepare Required Assets
+## Installing TaskGuard (Load Unpacked)
 
-The store requires specific image assets. You currently have only `image.png` (used as the extension icon). You need:
+### Prerequisites
 
-### Extension Icons (already partially done)
-Your `image.png` is used at 16×16, 48×48, and 128×128. For best quality, create separate PNG files at each size rather than scaling one image:
+- **Chromium-based browser:** Google Chrome 88+, Microsoft Edge 88+, Brave, Arc, or any modern Chromium fork. Manifest V3 support is required.
+- **Git** (optional — you can also download a ZIP from GitHub).
 
-| File | Size | Used for |
-|------|------|----------|
-| `icon16.png` | 16×16 px | Browser toolbar (small) |
-| `icon48.png` | 48×48 px | Extensions management page |
-| `icon128.png` | 128×128 px | Chrome Web Store listing |
+### Steps
 
-Update `manifest.json` to reference them:
-```json
-"icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-}
-```
+1. **Clone the repository** (or download the ZIP and unzip it):
 
-### Store Listing Screenshots (required)
-You need **at least 1 screenshot**, recommended 3–5. Each must be exactly:
-- **1280×800 px** or **640×400 px** (PNG or JPEG)
+   ```bash
+   git clone <repository-url> taskguard
+   cd taskguard
+   ```
 
-Suggested screenshots:
-1. Popup in setup view (entering task + duration)
-2. Intercept page in action (blocking a site with AI score visible)
-3. History dashboard (decisions tab with chart)
-4. Allowlist manager page
+2. **Open the extensions page** in Chrome / Chromium:
 
-### Promotional Tile (optional but recommended)
-- **440×280 px** PNG — shown in the Web Store search results
-- Use your extension name, icon, and a short tagline ("Stay focused by declaring your intent")
+   ```
+   chrome://extensions
+   ```
 
-### Store Listing Copy
-Prepare these texts before submitting:
+   (In Edge, use `edge://extensions`.)
 
-| Field | Limit | Suggested |
-|-------|-------|-----------|
-| **Name** | 45 chars | `TaskGuard – Intent-Aware Focus` |
-| **Short description** | 132 chars | `Declare your task, set a timer, and let TaskGuard intercept distracting sites with on-device AI relevance scoring.` |
-| **Detailed description** | 16,000 chars | Expand from README — explain features, data privacy (local-only), AI scoring, allowlist |
-| **Category** | select one | `Productivity` |
-| **Language** | select | `English` |
+3. **Enable Developer mode** using the toggle in the top-right corner of the extensions page.
 
----
+4. **Click "Load unpacked"** and select the cloned repository folder (the folder that contains `manifest.json`).
 
-## Step 2 — Review Permissions (Important for Review)
+5. The TaskGuard icon should now appear in the extensions area of the toolbar. Pin it for one-click access.
 
-The Chrome Web Store review team scrutinizes permissions. For each permission you declare in `manifest.json`, you must justify it in your store description or privacy policy.
+6. **First-install onboarding.** A welcome tab will open the first time you load the extension; close it when you are done reading.
 
-Your current permissions and justifications:
+### Updating
 
-| Permission | Why it's needed | Risk level |
-|-----------|-----------------|------------|
-| `storage` | Saves allowlist, session logs, and timer state locally | Low |
-| `alarms` | Drives the badge countdown timer reliably in a service worker | Low |
-| `tabs` | Intercepts already-open tabs when a session starts | Medium — must explain |
-| `webNavigation` | Detects every main-frame navigation to trigger interception | Medium — must explain |
-| `downloads` | Lets users export their data as JSON/CSV | Low |
+To pull updates after the initial install:
 
-**In your store description, add a privacy note like:**
-> "TaskGuard reads tab URLs only during active focus sessions to determine whether to show the intercept page. No URL data is sent to any server. All data is stored locally on your device using chrome.storage.local."
-
-### Host Permissions
-Your manifest declares:
-```json
-"host_permissions": [
-    "https://huggingface.co/*",
-    "https://*.huggingface.co/*",
-    "https://*.hf.co/*"
-]
-```
-This is needed to download the AI model on first use. Explain this in your description:
-> "On first use, the AI relevance model (~40 MB) is downloaded from Hugging Face and cached locally. After the first download, the extension works fully offline."
-
----
-
-## Step 3 — Create the ZIP Package
-
-Do **not** use git archive. Manually zip only the files the extension needs:
-
-**Files to include:**
-```
-manifest.json
-background.js
-popup.html
-popup.js
-intercept.html
-intercept.js
-allowlist.html
-allowlist.js
-history.html
-history.js
-onboarding.html
-onboarding.js
-classifier.js
-transformers.min.js
-ort-wasm.wasm
-ort-wasm-simd.wasm
-icon16.png
-icon48.png
-icon128.png
-```
-
-**Files to exclude:**
-```
-.git/
-explanation.txt
-PROJECT_OVERVIEW.md
-TaskGuard.md
-To-do.md
-README.md
-PUBLISHING.md
-image.png  (if replaced by icon16/48/128.png)
-```
-
-Create the zip from your terminal:
 ```bash
-cd /path/to/browser_focus_extension
-zip -r taskguard.zip manifest.json background.js popup.html popup.js intercept.html intercept.js allowlist.html allowlist.js history.html history.js onboarding.html onboarding.js classifier.js transformers.min.js ort-wasm.wasm ort-wasm-simd.wasm icon16.png icon48.png icon128.png
+cd taskguard
+git pull
 ```
 
-> **Important:** The `ort-wasm-simd.wasm` and `ort-wasm.wasm` files are binary and may be large (~4–8 MB each). The Web Store accepts packages up to **128 MB**, so this is fine.
+Then go back to `chrome://extensions` and click the circular **Reload** icon on the TaskGuard card. No re-installation is required.
+
+### Uninstalling
+
+`chrome://extensions` → TaskGuard card → **Remove**. This wipes all `chrome.storage.local` data for the extension (allowlist, session logs, decision logs, `userId`).
 
 ---
 
-## Step 4 — Submit to the Chrome Web Store
+## Recommended GitHub Hygiene
 
-1. Go to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-2. Click **New Item**
-3. Upload your `taskguard.zip`
-4. Fill in all store listing fields (name, description, screenshots, category)
-5. Set **Visibility**: Public or Unlisted
-   - **Unlisted** = only people with the direct link can install it (good for testing with users before going public)
-   - **Public** = appears in search results
-6. Fill in the **Privacy practices** tab:
-   - Does your extension collect user data? → **No** (all storage is local)
-   - Check "I certify that the following is accurate..."
-7. Click **Submit for Review**
+If you fork or re-host this project, consider:
 
-### Review Timeline
-- Google's automated + manual review typically takes **1–3 business days**
-- If rejected, you'll receive an email with a specific reason
-- Common rejection reasons: vague permissions justification, missing privacy policy, low-quality screenshots
+- **Pinning a release tag** (e.g., `v1.0-iomp`) at the commit used for the IOMP report, so that the report and the code stay synchronised.
+- **Adding a `LICENSE` file.** A permissive licence (MIT or Apache-2.0) is consistent with the artifact framing in `RESEARCH_STATEMENT.md`.
+- **Publishing the probe set** referenced in § 5.1.1 of `PROJECT_REPORT.md` as a small JSON file in the repository (e.g., `probes/probe_set.json`) so that reproducibility claims are first-class.
+- **Excluding personal data** from any committed exports. The `taskguard_export.json` artefact contains a randomly generated `userId` and your real intent / decision history; never commit it.
 
 ---
 
-## Step 5 — Write a Privacy Policy (Required)
+## What does *not* belong in the repository
 
-Even though TaskGuard doesn't collect personal data, Google requires a privacy policy URL if your extension uses any of: `storage`, `tabs`, `webNavigation`, or `downloads`.
+- Any personal `taskguard_export.json` (decision and session logs).
+- Browser profile directories or `chrome.storage.local` dumps.
+- Secrets of any kind. The project has no API keys, but if you fork and extend it (e.g., with a future learned model hosted elsewhere), do not commit credentials.
 
-Create a simple one-page privacy policy. You can host it free on:
-- [GitHub Pages](https://pages.github.com/) — create a `privacy.html` in your repo
-- [Notion](https://notion.so) — publish a page publicly
+A minimal `.gitignore` is sufficient:
 
-**Minimum content your privacy policy must include:**
-```
-- What data is collected: None. All data stays on your device.
-- Where data is stored: chrome.storage.local (your browser only)
-- Data sharing: No data is shared with any third party
-- External requests: The AI model is downloaded once from Hugging Face (huggingface.co) 
-  on first use and cached locally. No user data is sent in this request.
-- Contact: your email address
+```gitignore
+taskguard_export.json
+taskguard_decisions.csv
+taskguard_sessions.csv
+.DS_Store
 ```
 
-Add the privacy policy URL in the store listing under **Privacy practices → Privacy policy URL**.
-
 ---
 
-## Optional: Publish to Microsoft Edge Add-ons Store
+## If you change your mind later
 
-TaskGuard already handles `edge://` URLs in `background.js`, so it's compatible. Edge uses the same MV3 format.
-
-1. Go to [Microsoft Edge Add-ons Developer Dashboard](https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview)
-2. Sign in with a Microsoft account (free, no registration fee)
-3. Click **Create new extension** → upload the same `taskguard.zip`
-4. Fill in store listing details
-5. Submit — review takes 3–7 business days
-
----
-
-## Post-Publish Checklist
-
-- [ ] One-time $5 developer registration fee paid
-- [ ] Dev artifacts deleted (`explanation.txt`, `PROJECT_OVERVIEW.md`, `TaskGuard.md`, `To-do.md`)
-- [ ] Icons created at 16×16, 48×48, 128×128 px
-- [ ] At least 1 screenshot at 1280×800 px
-- [ ] Privacy policy hosted and URL ready
-- [ ] ZIP created with only required files
-- [ ] Store listing: name, short description, full description filled
-- [ ] Permissions justified in store description
-- [ ] Visibility set (Public vs Unlisted)
-- [ ] Submitted and email notifications enabled
+The previous version of this file contained a full Chrome Web Store submission walk-through (developer-account setup, store-listing copy, screenshot dimensions, privacy-policy hosting). If TaskGuard is later re-positioned as a public consumer extension, that material is available in the repository's Git history and can be restored verbatim. The current build (`manifest.json`, permissions, in-browser classifier with no `host_permissions`) is already store-compliant; only the listing assets and a hosted privacy policy would need to be added.
